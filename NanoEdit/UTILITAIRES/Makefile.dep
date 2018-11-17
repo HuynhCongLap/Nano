@@ -1,0 +1,18 @@
+codec.o: codec.c codec.h l_liste.h u_base.h eprintf.h codec_base.h
+codec_base.o: codec_base.c u_base.h eprintf.h codec.h l_liste.h \
+ codec_base.h
+eprintf.o: eprintf.c
+l_liste.o: l_liste.c l_liste.h u_base.h eprintf.h codec_base.h
+pov.o: pov.c pov.h
+s_string.o: s_string.c u_base.h eprintf.h s_string.h
+u_base.o: u_base.c u_memoire.h u_base.h eprintf.h s_string.h
+u_dll.o: u_dll.c u_dll.h
+u_etat.o: u_etat.c u_base.h eprintf.h u_etat.h
+u_fichier.o: u_fichier.c l_liste.h u_base.h eprintf.h codec_base.h \
+ s_string.h
+u_geometrie.o: u_geometrie.c u_geometrie.h u_base.h eprintf.h
+u_hlsrvb.o: u_hlsrvb.c u_base.h eprintf.h u_hlsrvb.h u_geometrie.h
+u_httpd.o: u_httpd.c u_httpd.h
+u_memoire.o: u_memoire.c u_base.h eprintf.h u_memoire.h
+u_repartiteur.o: u_repartiteur.c u_base.h eprintf.h l_liste.h \
+ codec_base.h u_repartiteur.h s_string.h

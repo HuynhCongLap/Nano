@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+	<meta charset="utf-8">
+	</head>
+	
+	<body>     
+	<h1> Présentation de <i>NanoEdit</i> </h1>
+	<i>NanoEdit</i> fonctionne uniquement sous linux. <br>
+		
+	<h2>Sur les machines du bâtiment Nautibus</h2>	
+	Vous pouvez utiliser <i>NanoEdit</i> sur n'importe quelle machine du bâtiment.<br>
+	Pour cela il suffit de 
+	créer un répertoire sur votre répertoire de connexion et d'y copier <a target="new" href="http://perso.univ-lyon1.fr/eliane.perna/TPMG/Makefile">ce makefile </a>.<br>
+	Pour lancer 	<i>NanoEdit</i>, il suffit de lancer la commande <i>make</i><br>
+	<b>NB : Vous n'avez pas besoin d'installer les sources de <i>NanoEdit</i> sur votre compte à l'Université. </b> 		
+	
+	<h2>Installation sur votre machine personnelle</h2>
+	
+	Pour l'installation, consultez <a target="new" href="http://perso.univ-lyon1.fr/thierry.excoffier/NanoEdit/HTML/installer.html">cette page</a>.
+	<br><br>
+	Après l'installation, vous trouverez 2 répertoires sur votre répertoire de connexion : <i>NanoEdit</i> et <i>MonNano</i>.<br>
+	<br><i>NanoEdit</i> contient les sources de NanoEdit que vous aurez compilés en suivant les indications de la page d'installation. <br><br>
+	Le répertoire <i>MonNano</i> contient un fichier makefile. Pour lancer 	<i>NanoEdit</i>, il suffit de lancer la commande <i>make</i><br>Vous mettrez dans ce répertoire <b>vos</b> fichiers sources (cf. le paragraphe "Création d'objets").
+	<h2>Utilisation de <i>NanoEdit</i></h2>
+	<ul>
+		<li>Allez dans votre répertoire <i>MonNano</i>
+		<li>Tapez la commande <i>make</i> pour lancer 	<i>NanoEdit</i> 
+	</ul>
+	Pour pouvez créer des objets en cliquant dans le menu <i>création</i> ou bien en utilisant les raccourcis claviers.<br>Voici les raccourcis que vous utiliserez le plus souvent :
+	<ul>
+		<li>P3  : création d'un point 3D
+		<li>P4  : création d'un point 4D	
+		<li>TP3 : création d'une table de points 3D à partir d'une liste de P3 sélectionnés
+		<li>TP4 : création d'une table de points 4D à partir d'une liste de P4 sélectionnés	
+		<li>GP3 : création d'une grille de points 3D à partir de listes de TP3 sélectionnées
+		<li>GP4 : création d'une grille de points 4D à partir de listes de TP4 sélectionnées	
+		<li>co  : création d'un objet couleur
+		<li>Touche F1 sur un objet sélectionné : affichage de la fenêtre d'édition de cet objet	
+		<li>Touche F3 : désélection de tous les objets sélectionnés 
+	</ul>	
+	sauvegarde de scènes, chargement de fichiers, compilation à partir de l'application ... 
+	
+	<h2>Création d'objets</h2>
+	Code écrit en langage C (C++ possible)
+	<ul>
+		<li>Les fichiers sources dont le nom commence par o_ sont les fichiers contenant les "objets" de <i>NanoEdit</i>.
+		<li>De préférence un objet par fichier, c'est plus simple et plus lisible	
+		<li>Pour compiler il suffit de lancer la commande <i>make</i>, vous n'avez pas à modifier le fichier <i>Makefile</i>	
+	</ul>
+	Fichiers d'exemples pour la création d'objets dans NE :
+	<ul>
+		<li> <a href="figure.c"> figure.c </a>
+		<li> <a href="figure.h"> figure.h </a>
+		<li> <a href="o_cerc.c"> o_cerc.c </a>
+		<li> <a href="o_sph.c"> o_sph.c </a>
+		<li> <a href="o_type_mg.c.memo"> o_type_mg.c.memo </a> fichier regroupant les types les plus fréquents et  leur déclaration dans une CLASSE 
+	</ul>	
+	
+	--------------------------------------------------------------------------------
+	
+	<h1> À vous de jouer</h1>
+	<ol>
+		<li>Sauvegarder les exemples précédents sur votre compte, lancez <i>NanoEdit</i> et testez-les</li>
+		<li>Testez les différentes fonctionnalitées de <i>NanoEdit</i> montrées pendant la démo.</li>
+		<li>Écrivez un objet <i>NanoEdit</i> qui crée un carré centré sur l'origine du repère (0,x,y)
+	et de dimension 1. <br>
+	Les 2 paramètres <i>centre du carré</i> et <i>dimension du carré</i> seront des paramètres éditables </i>. 
+	Testez votre objet</li>
+		<li>Modifiez votre code pour que ces 2 paramètres soient extraits de <i>NanoEdit</i>. Testez-le </li>
+		<li>Modifiez votre code pour que ces 2 paramètres soient extraits de <i>NanoEdit</i> et obligatoires. 
+	Testez-le <br>
+	(la deuxième version est préférable pour l'utilisateur)</li> 
+		<li>Ajoutez  un champs <i>Booleen</i> permettant de basculer d'un affichage filaire
+	 à un affichage "plein" (carré colorié) </li>
+	 Ajoutez un champs <i>Menu </i> permettant de sélectionner une couleur pour l'affichage du carré 
+	 parmi un choix de 5 couleurs </li>
+	 <li>Sauvegardez l'objet que vous avez créé dans un fichier</li>
+	 <li>Quittez  <i>NanoEdit</i>, relancez  <i>NanoEdit</i> et chargez le fichier que vous avez créé précédemment </li>
+	</ol>
+	
+	Si vous avez terminez avant la fin  de la séance :
+	<ol> 
+		<li>Écrivez un objet <i>NanoEdit</i> qui affiche  une liste de points P3
+	 à l'aide d'une ligne brisée.</li>
+		<li>Ajoutez un champs <i>Booleen</i> permettant de basculer de l'affichage du polygone à l'affichage du polygone fermé.
+	 La liste des points sera stockée dans une table de points P3 <i>Extraite</i></li>
+	 </ol>
+</body>
+</html>

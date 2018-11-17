@@ -1,0 +1,2 @@
+u_delaunay.o: u_delaunay.c u_delaunay.h
+u_simplex.o: u_simplex.c

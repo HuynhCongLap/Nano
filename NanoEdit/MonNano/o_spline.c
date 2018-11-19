@@ -34,13 +34,24 @@ static void changement(struct spline *o)
   if ( ! (UN_CHAMP_CHANGE(o)||CREATION(o)) )
     return ;
 
-  if (CHAMP_CHANGE(o,nb_points) || CHAMP_CHANGE(o, control_points))
+  if (CHAMP_CHANGE(o,nb_points) || CHAMP_CHANGE(o, control_points) || CHAMP_CHANGE(o, weights))
   {
     if (o->curve.nb > 0 )
       free(o->curve.table);
 
-    if (o->nb_points < 2)
+    if (o->nb_points < 10)
       o->nb_points = 10;
+    
+    if(o->weights.nb < o->control_points.nb)
+	{
+           printf("Thap hon\n");
+	   free(o->weights.table);
+	   ALLOUER(o->weights.table,o->control_points.nb);
+	   for(int i=0; i<o->weights.nb; i++)
+		{
+			o->weights.table[i] = 1;
+		}
+	}
 
 
     /*
@@ -52,6 +63,7 @@ static void changement(struct spline *o)
              }
      free(points_sur_cercle);
      */
+ 
 
     o->curve.table = malloc(o->nb_points*sizeof(Triplet));
     ALLOUER(o->curve.table,o->nb_points);
@@ -65,9 +77,9 @@ static void changement(struct spline *o)
 	int n = o->control_points.nb -1;
 	for(int ii=0; ii<o->control_points.nb; ii++)
 	{
-	  o->curve.table[i].x += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].x ;
-	  o->curve.table[i].y += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].y ;
-	  o->curve.table[i].z += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].z ;
+	  o->curve.table[i].x += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].x*o->weights.table[ii] ;
+	  o->curve.table[i].y += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].y*o->weights.table[ii] ;
+	  o->curve.table[i].z += Coff(n,ii)*pow((1-t),n-ii)*pow(t,ii)*o->control_points.table[ii].z*o->weights.table[ii] ;
 	}
 
        t+=(1.0/(o->nb_points-1));
@@ -98,7 +110,7 @@ CLASSE(spline, struct spline,
        CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("100") )
        CHAMP(order, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_triplet Extrait Obligatoire Edite)
-       CHAMP(weights, LABEL("Weights") L_table_nombre P_table_flottant Edite Affiche)
+       CHAMP(weights, LABEL("Weights") L_table_nombre P_table_flottant Edite Affiche DEFAUT("1 1 1 1 1 1 1 1 1 1 1"))
 
        CHANGEMENT(changement)
        CHAMP_VIRTUEL(L_affiche_gl(affiche_spline))

@@ -17,6 +17,16 @@ struct spline
 } ;
 
 
+float N(int i, int q, float *U, float u)
+{
+    if(q==1)
+            return u<= U[i+1] && u>= U[i] ? 1 : 0;
+    else
+    {
+        return ((u-U[i])*N(i,q-1,U,u))/(U[i+q-1] - U[i] ) + ((U[i+q]-u)*N(i+1,q-1,U,u))/(U[i+q] - U[i+1] );
+    }
+}
+
 float factorial(int n)
 {
   return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
@@ -69,7 +79,7 @@ static void changement(struct spline *o)
     ALLOUER(o->curve.table,o->nb_points);
 
     float t = 0;
-    for(int i=0 ; i<o->nb_points ; i++)
+    /*for(int i=0 ; i<o->nb_points ; i++)
     {
 	o->curve.table[i].x = 0; // ?????
 	o->curve.table[i].y = 0;
@@ -83,7 +93,31 @@ static void changement(struct spline *o)
 	}
 
        t+=(1.0/(o->nb_points-1));
+    }*/
+    float *nodal = malloc((o->control_points.nb+3)*sizeof(float));
+    for(int i=0; i< o->control_points.nb+3+1 ; i++ ){
+        nodal[i] = 1.0*i/(o->control_points.nb+3);
+        
     }
+
+    float H = 0;
+    for(int i=0; i<o->nb_points; i++)
+	{
+		float u = (i*1.0)/(o->nb_points-1);
+		o->curve.table[i].x = 0; // ?????
+		o->curve.table[i].y = 0;
+		o->curve.table[i].z = 0;
+		for(int j=0; j<o->control_points.nb; j++)
+		{
+	  		o->curve.table[i].x += o->control_points.table[j].x*o->weights.table[j]*N(j,3,nodal,u);
+	  		o->curve.table[i].y += o->control_points.table[j].y*o->weights.table[j]*N(j,3,nodal,u);
+	  		o->curve.table[i].z += o->control_points.table[j].z*o->weights.table[j]*N(j,3,nodal,u);
+			H += N(j,3,nodal,u);		
+		}
+		o->curve.table[i].x /= H;
+		o->curve.table[i].y /= H;
+		o->curve.table[i].z /= H;
+	}
 
     printf("dans changement\n");
   }

@@ -8,34 +8,27 @@
 struct spline
 {
 
-  Table_triplet curve;
-  Table_triplet control_points;
-  Table_flottant weights;
+  Table_triplet curve; // point of the real curve
+  Table_triplet control_points; // number of control point
+  Table_flottant weights; // weight of each controll point
 
-  int nb_points;
-  int order;
+  int nb_points; // number of step t
+  int q;  // p+1
 } ;
+
 
 
 float N(int i, int q, float *U, float u)
 {
     if(q==1)
-            return u<= U[i+1] && u>= U[i] ? 1 : 0;
+            return U[i] <= u && u <= U[i+1] ? 1 : 0;
     else
     {
-        return ((u-U[i])*N(i,q-1,U,u))/(U[i+q-1] - U[i] ) + ((U[i+q]-u)*N(i+1,q-1,U,u))/(U[i+q] - U[i+1] );
+
+        return ((u-U[i])/(U[i+q-1]-U[i]))*N(i,q-1,U,u) +  ((U[i+q]-u)/(U[i+q]-U[i+1]))*N(i+1,q-1,U,u);
     }
 }
 
-float factorial(int n)
-{
-  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
-}
-
-float  Coff(int n, int i)
-{
-	return factorial(n)/ (factorial(n-i)* factorial(i));
-}
 
 static void changement(struct spline *o)
 {
@@ -51,10 +44,10 @@ static void changement(struct spline *o)
 
     if (o->nb_points < 10)
       o->nb_points = 10;
-    
+
     if(o->weights.nb < o->control_points.nb)
 	{
-           printf("Thap hon\n");
+     printf("Thap hon\n");
 	   free(o->weights.table);
 	   ALLOUER(o->weights.table,o->control_points.nb);
 	   for(int i=0; i<o->weights.nb; i++)
@@ -73,12 +66,12 @@ static void changement(struct spline *o)
              }
      free(points_sur_cercle);
      */
- 
+
 
     o->curve.table = malloc(o->nb_points*sizeof(Triplet));
     ALLOUER(o->curve.table,o->nb_points);
 
-    float t = 0;
+
     /*for(int i=0 ; i<o->nb_points ; i++)
     {
 	o->curve.table[i].x = 0; // ?????
@@ -94,29 +87,35 @@ static void changement(struct spline *o)
 
        t+=(1.0/(o->nb_points-1));
     }*/
-    float *nodal = malloc((o->control_points.nb+3)*sizeof(float));
-    for(int i=0; i< o->control_points.nb+3+1 ; i++ ){
-        nodal[i] = 1.0*i/(o->control_points.nb+3);
-        
+    float *nodal = malloc((o->control_points.nb + o->q)*sizeof(float));
+    for(int i=0; i< o->control_points.nb + o->q ; i++ ){
+        nodal[i] = 1.0*i/(o->control_points.nb + o->q -1);
+        printf("Nodal[%d]: %f\n",i,nodal[i]);
     }
 
     float H = 0;
-    for(int i=0; i<o->nb_points; i++)
-	{
-		float u = (i*1.0)/(o->nb_points-1);
-		o->curve.table[i].x = 0; // ?????
-		o->curve.table[i].y = 0;
-		o->curve.table[i].z = 0;
-		for(int j=0; j<o->control_points.nb; j++)
-		{
-	  		o->curve.table[i].x += o->control_points.table[j].x*o->weights.table[j]*N(j,3,nodal,u);
-	  		o->curve.table[i].y += o->control_points.table[j].y*o->weights.table[j]*N(j,3,nodal,u);
-	  		o->curve.table[i].z += o->control_points.table[j].z*o->weights.table[j]*N(j,3,nodal,u);
-			H += N(j,3,nodal,u);		
-		}
-		o->curve.table[i].x /= H;
-		o->curve.table[i].y /= H;
-		o->curve.table[i].z /= H;
+    printf("num points: %d\n",o->control_points.nb);
+    printf("num curve: %d\n",o->nb_points);
+    //for(float t=nodal[o->q -1]; t<=nodal[o->control_points.nb]; t+=0.05)
+  for (int i=0; i<o->nb_points ; i++)
+  {
+      o->curve.table[i].x = 0;
+      o->curve.table[i].y = 0;
+      o->curve.table[i].z = 0;
+
+      float diff= nodal[o->control_points.nb] - nodal[o->q -1];
+      float t= nodal[o->q -1] + (i*1.0/(o->nb_points-1))*diff ;
+      printf("t: %f\n",t);
+		  for(int j=0; j<o->control_points.nb; j++)
+		    {
+	  		     o->curve.table[i].x += o->control_points.table[j].x*N(j,o->q,nodal,t);
+	  		     o->curve.table[i].y += o->control_points.table[j].y*N(j,o->q,nodal,t);
+	  		     o->curve.table[i].z += o->control_points.table[j].z*N(j,o->q,nodal,t);
+			//H += N(j,3,nodal,t);
+		    }
+		//o->curve.table[i].x /= H;
+		//o->curve.table[i].y /= H;
+		//o->curve.table[i].z /= H;
 	}
 
     printf("dans changement\n");
@@ -142,7 +141,7 @@ CLASSE(spline, struct spline,
 
        CHAMP(curve, L_table_point P_table_triplet Sauve)
        CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("100") )
-       CHAMP(order, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
+       CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_triplet Extrait Obligatoire Edite)
        CHAMP(weights, LABEL("Weights") L_table_nombre P_table_flottant Edite Affiche DEFAUT("1 1 1 1 1 1 1 1 1 1 1"))
 

@@ -11,6 +11,7 @@ struct spline
   Table_triplet curve; // point of the real curve
   Table_triplet control_points; // number of control point
   Table_flottant weights; // weight of each controll point
+  Table_flottant nodal;
 
   int nb_points; // number of step t
   int q;  // p+1
@@ -18,25 +19,25 @@ struct spline
 
 
 
-float N(int i, int q, float *U, float u)
+float N(int i, int q, Table_flottant U, float u)
 {
     if(q==1)
-            return U[i] <= u && u <= U[i+1] ? 1 : 0;
+            return U.table[i] <= u && u <= U.table[i+1] ? 1 : 0;
     else
     {
       float val1 = 0;
       float val2 = 0;
-      if((U[i+q-1]-U[i]) == 0)
+      if((U.table[i+q-1]-U.table[i]) == 0)
           val1 = 1;
       else
-          val1 = (U[i+q-1]-U[i]);
+          val1 = (U.table[i+q-1]-U.table[i]);
 
-      if((U[i+q]-U[i+1]) == 0)
+      if((U.table[i+q]-U.table[i+1]) == 0)
          val2 = 1;
       else
-         val2 = (U[i+q]-U[i+1]);
+         val2 = (U.table[i+q]-U.table[i+1]);
 
-         return ((u-U[i])/val1)*N(i,q-1,U,u) +  ((U[i+q]-u)/val2)*N(i+1,q-1,U,u);
+         return ((u-U.table[i])/val1)*N(i,q-1,U,u) +  ((U.table[i+q]-u)/val2)*N(i+1,q-1,U,u);
     }
 
 }
@@ -54,18 +55,16 @@ static void changement(struct spline *o)
     if (o->curve.nb > 0 )
       free(o->curve.table);
 
-    if (o->nb_points < 10)
-      o->nb_points = 10;
+    if (o->nb_points < 100)
+      o->nb_points = 100;
 
     if(o->weights.nb < o->control_points.nb)
 	{
      printf("Thap hon\n");
 	   free(o->weights.table);
-	   ALLOUER(o->weights.table,o->control_points.nb);
+     o->weights.table = malloc(o->control_points.nb*sizeof(Flottant));
 	   for(int i=0; i<o->weights.nb; i++)
-		{
 			o->weights.table[i] = 1;
-		}
 	}
 
 
@@ -99,57 +98,62 @@ static void changement(struct spline *o)
 
        t+=(1.0/(o->nb_points-1));
     }*/
-    float *nodal = malloc((o->control_points.nb + o->q)*sizeof(float));
+    o->nodal.table = malloc((o->control_points.nb + o->q)*sizeof(Flottant));
 
     for(int i=0; i<= o->q -1 ; i++ ){
-        //nodal[i] = 1.0*i/(o->control_points.nb + o->q -1);
-        nodal[i] = 0;
-      //  printf("Nodal[%d]: %f\n",i,nodal[i]);
+        //o->nodal.table[i] = 1.0*i/(o->control_points.nb + o->q -1);
+        o->nodal.table[i] = 0;
+      //  printf("o->nodal.table[%d]: %f\n",i,o->nodal.table[i]);
     }
     float l= 1;
-    for(int i=o->q; i<= o->control_points.nb-1; i++ ){
-        //nodal[i] = 1.0*i/(o->control_points.nb + o->q -1);
-        int n = o->control_points.nb-1 - o->q ;
-        //nodal[i] = 1.0/(o->control_points.nb-1-l);
-        nodal[i] = l/(n+1);
-      //  printf("Nodal[%d]: %f\n",i,nodal[i]);
+    for(int i=o->q; i<= o->control_points.nb; i++ ){
+        //o->nodal.table[i] = 1.0*i/(o->control_points.nb + o->q -1);
+        int n = o->control_points.nb - o->q ;
+        //o->nodal.table[i] = 1.0/(o->control_points.nb-1-l);
+        o->nodal.table[i] = l/(n+1);
+      //  printf("o->nodal.table[%d]: %f\n",i,o->nodal.table[i]);
         l++;
     }
-    for(int i=o->control_points.nb; i<= o->control_points.nb - 1 + o->q ; i++ ){
-        //nodal[i] = 1.0*i/(o->control_points.nb + o->q -1);
-        nodal[i] = 1;
-      //  printf("Nodal[%d]: %f\n",i,nodal[i]);
+    for(int i=o->control_points.nb+1; i<= o->control_points.nb - 1 + o->q ; i++ ){
+        //o->nodal.table[i] = 1.0*i/(o->control_points.nb + o->q -1);
+        o->nodal.table[i] = 1;
+      //  printf("o->nodal.table[%d]: %f\n",i,o->nodal.table[i]);
     }
     for(int i=0; i<= o->control_points.nb - 1 + o->q ; i++ ){
-        //nodal[i] = 1.0*i/(o->control_points.nb + o->q -1);
-        printf("Nodal[%d]: %f\n",i,nodal[i]);
+        //o->nodal.table[i] = 1.0*i/(o->control_points.nb + o->q -1);
+        printf("o->nodal.table[%d]: %f\n",i,o->nodal.table[i]);
     }
 
-    float H = 0;
+
     printf("num points: %d\n",o->control_points.nb);
     printf("num curve: %d\n",o->nb_points);
-    //for(float t=nodal[o->q -1]; t<=nodal[o->control_points.nb]; t+=0.05)
+    //for(float t=o->nodal.table[o->q -1]; t<=o->nodal.table[o->control_points.nb]; t+=0.05)
   for (int i=0; i<o->nb_points ; i++)
   {
       o->curve.table[i].x = 0;
       o->curve.table[i].y = 0;
       o->curve.table[i].z = 0;
 
-      //float diff= nodal[o->control_points.nb] - nodal[o->q -1];
-      //float t= nodal[o->q -1] + (i*1.0/(o->nb_points-1))*diff ;
+      //float diff= o->nodal.table[o->control_points.nb] - o->nodal.table[o->q -1];
+      //float t= o->nodal.table[o->q -1] + (i*1.0/(o->nb_points-1))*diff ;
+      float H = 0;
       float t = (i*1.0) / (o->nb_points-1);
       printf("t: %f\n",t);
 		  for(int j=0; j<o->control_points.nb; j++)
 		    {
-	  		     o->curve.table[i].x += o->control_points.table[j].x*N(j,o->q,nodal,t);
-	  		     o->curve.table[i].y += o->control_points.table[j].y*N(j,o->q,nodal,t);
-	  		     o->curve.table[i].z += o->control_points.table[j].z*N(j,o->q,nodal,t);
-
-			//H += N(j,3,nodal,t);
+             float basis = N(j,o->q,o->nodal,t);
+             float weight = o->weights.table[j];
+	  		     o->curve.table[i].x += o->control_points.table[j].x*basis*weight;
+	  		     o->curve.table[i].y += o->control_points.table[j].y*basis*weight;
+	  		     o->curve.table[i].z += o->control_points.table[j].z*basis*weight;
+             printf("Basis[%d]= %f\n",j,basis);
+			       H += basis*weight;
 		    }
-		//o->curve.table[i].x /= H;
-		//o->curve.table[i].y /= H;
-		//o->curve.table[i].z /= H;
+          printf("point[%d]: x=%f , y=%f , z=%f",i,o->curve.table[i].x,o->curve.table[i].y,o->curve.table[i].z);
+    printf("H:%f\n",H);
+    o->curve.table[i].x /= H;
+		o->curve.table[i].y /= H;
+		o->curve.table[i].z /= H;
 	}
 
     printf("dans changement\n");
@@ -161,13 +165,7 @@ static void changement(struct spline *o)
 
 static void affiche_spline(struct spline *o)
 {
-
-
-  glBegin(GL_LINES) ;
-  for(int j=0  ; j<o->nb_points ; j++)
-    glVertex3f(o->curve.table[j].x,o->curve.table[j].y,o->curve.table[j].z);
-  glEnd();
-
+  glPointSize(3);
 
   glBegin(GL_POINTS) ;
   for(int j=0  ; j<o->nb_points ; j++)
@@ -182,8 +180,8 @@ CLASSE(spline, struct spline,
        CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("100") )
        CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_triplet Extrait Obligatoire Edite)
+       CHAMP(nodal, LABEL("Knot vectors") L_table_nombre P_table_flottant Edite Affiche)
        CHAMP(weights, LABEL("Weights") L_table_nombre P_table_flottant Edite Affiche DEFAUT("1 1 1 1 1 1 1 1 1 1 1"))
-
        CHANGEMENT(changement)
        CHAMP_VIRTUEL(L_affiche_gl(affiche_spline))
 

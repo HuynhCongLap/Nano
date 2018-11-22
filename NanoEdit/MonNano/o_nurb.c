@@ -5,7 +5,7 @@
 #include "t_geometrie.h"
 #include "figure.h"
 
-struct spline
+struct nurb
 {
 
   Table_triplet curve; // point of the real curve
@@ -18,7 +18,7 @@ struct spline
 
 
 
-static void changement(struct spline *o)
+static void changement(struct nurb *o)
 {
 
 
@@ -89,10 +89,10 @@ static void changement(struct spline *o)
 }
 
 
-static void affiche_spline(struct spline *o)
+static void affiche_nurb(struct nurb *o)
 {
 
-  glLineWidth(1); 
+  glLineWidth(1);
   glColor3f(1,0,0); // draw lines connecting controll points
   glBegin(GL_LINE_STRIP) ;
   for(int j=0  ; j<o->control_points.nb ; j++)
@@ -100,7 +100,7 @@ static void affiche_spline(struct spline *o)
   glEnd();
   glColor3f(1,1,1);
 
-  glLineWidth(3); // draw Bspline curve
+  glLineWidth(3); // draw Bnurb curve
   glBegin(GL_LINE_STRIP) ;
   for(int j=0  ; j<o->nb_points ; j++)
     glVertex3f(o->curve.table[j].x,o->curve.table[j].y,o->curve.table[j].z);
@@ -108,7 +108,7 @@ static void affiche_spline(struct spline *o)
 }
 
 
-CLASSE(spline, struct spline,
+CLASSE(nurb, struct nurb,
 
        CHAMP(curve, L_table_point P_table_triplet Sauve)
        CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("100") )
@@ -116,8 +116,8 @@ CLASSE(spline, struct spline,
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_quadruplet Extrait Obligatoire Edite)
        CHAMP(nodal, LABEL("Knot vectors") L_table_nombre P_table_flottant Edite Affiche)
        CHANGEMENT(changement)
-       CHAMP_VIRTUEL(L_affiche_gl(affiche_spline))
+       CHAMP_VIRTUEL(L_affiche_gl(affiche_nurb))
 
-       MENU("Exemples_MG/spline")
+       MENU("Exemples_MG/nurb")
        EVENEMENT("Ctrl+BP")
        )

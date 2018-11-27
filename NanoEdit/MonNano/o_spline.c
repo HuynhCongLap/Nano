@@ -36,6 +36,7 @@ static void changement(struct spline *o)
 
     o->curve.table = malloc(o->nb_points*sizeof(Triplet));
     o->nodal.table = malloc((o->control_points.nb + o->q)*sizeof(Flottant));
+    o->nodal.nb = o->control_points.nb + o->q;
 
     for(int i=0; i<= o->q -1 ; i++ ){
         o->nodal.table[i] = 0;
@@ -92,7 +93,7 @@ static void changement(struct spline *o)
 static void affiche_spline(struct spline *o)
 {
 
-  glLineWidth(1); 
+  glLineWidth(1);
   glColor3f(1,0,0); // draw lines connecting controll points
   glBegin(GL_LINE_STRIP) ;
   for(int j=0  ; j<o->control_points.nb ; j++)
@@ -115,6 +116,7 @@ CLASSE(spline, struct spline,
        CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_quadruplet Extrait Obligatoire Edite)
        CHAMP(nodal, LABEL("Knot vectors") L_table_nombre P_table_flottant Edite Affiche)
+        CHAMP(nodal.nb, LABEL("Knot vectors") L_entier Edite Affiche)
        CHANGEMENT(changement)
        CHAMP_VIRTUEL(L_affiche_gl(affiche_spline))
 

@@ -85,7 +85,7 @@ Grille_triplet calcul_sphere(Triplet centre, double rayon, int nb_points)
 float N(int i, int q, Table_flottant U, float u)
 {
     if(q==1)
-            return U.table[i] <= u && u <= U.table[i+1] ? 1 : 0;
+            return U.table[i] < u && u < U.table[i+1] ? 1 : 0;
     else
     {
       float val1 = 0;

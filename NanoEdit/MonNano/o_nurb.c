@@ -8,9 +8,6 @@
 struct nurb
 {
 
-  //Table_triplet curve; // point of the real curve
-  //Table_quadruplet control_points; // number of control point
-
   Grille_quadruplet grille_control_points;
   Grille_triplet grille_curve;
 
@@ -33,14 +30,25 @@ static void changement(struct nurb *o)
   if (CHAMP_CHANGE(o,nb_points) || CHAMP_CHANGE(o, grille_control_points)  || CHAMP_CHANGE(o, q))
   {
 
-    if (o->nb_points < 100)
-      o->nb_points = 100;
+    if (o->nb_points < 10)
+      o->nb_points = 10;
+
+     if(o->grille_curve.nb_lignes >0)
+     {
+       for(int i=0; i<o->grille_curve.nb_lignes; i++){
+           free(o->grille_curve.grille[i]);
+         }
+           free(o->grille_curve.grille);
+     }
+
+       // printf("curve:%d \n",o->grille_curve.nb_lignes);
+       // printf("nb_points:%d \n",o->nb_points);
+    //o->curve.table = malloc(o->nb_points*sizeof(Triplet));\
 
 
-    //o->curve.table = malloc(o->nb_points*sizeof(Triplet));
-    o->grille_curve.grille = (Triplet**)malloc(o->grille_control_points.nb_lignes*sizeof(Triplet));
-    for (int i=0; i<o->grille_control_points.nb_lignes; i++)
-         o->grille_curve.grille[i] = (Triplet *)malloc(o->grille_control_points.nb_colonnes * sizeof(Triplet));
+     o->grille_curve.grille = (Triplet**)malloc(o->nb_points*sizeof(Triplet));
+     for (int i=0; i<o->nb_points; i++)
+          o->grille_curve.grille[i] = (Triplet *)malloc(o->nb_points * sizeof(Triplet));
 
 
     o->nodal_one.table = malloc((o->grille_control_points.nb_lignes + o->q)*sizeof(Flottant));
@@ -75,34 +83,41 @@ static void changement(struct nurb *o)
     }
 
 
-    for(int l=0 ; l<o->grille_control_points.nb_lignes; l++)
+
+    for(int i=0 ; i<o->nb_points; i++)
     {
-            for(int c=0; c<o->grille_control_points.nb_colonnes; c++)
+            for(int j=0; j<o->nb_points; j++)
               {
-                      o->grille_curve.grille[l][c].x = 0;
-                      o->grille_curve.grille[l][c].y = 0;
-                      o->grille_curve.grille[l][c].z = 0;
+                      o->grille_curve.grille[i][j].x = 0;
+                      o->grille_curve.grille[i][j].y = 0;
+                      o->grille_curve.grille[i][j].z = 0;
               }
      }
 
+
+
     for (int i=0; i<o->nb_points ; i++)
     {
-        float H = 0;
-        float t = (i*1.0) / (o->nb_points-1);
-        for(int l=0 ; l<o->grille_control_points.nb_lignes; l++)
-        {
-              float basis_l = N(l,o->q,o->nodal_one,t);
-  		          for(int c=0; c<o->grille_control_points.nb_colonnes; c++)
-  		            {
-                    float basis_c = N(c,o->q,o->nodal_two,t);
-  	  		                o->grille_curve.grille[l][c].x += o->grille_control_points.grille[l][c].x*basis_l*basis_c;
-  	  		                o->grille_curve.grille[l][c].y += o->grille_control_points.grille[l][c].y*basis_l*basis_c;
-  	  		                o->grille_curve.grille[l][c].z += o->grille_control_points.grille[l][c].z*basis_l*basis_c;
-                          printf("Point[%d][%d]: (%f,%f,%f) \n",l,c,o->grille_curve.grille[l][c].x,o->grille_curve.grille[l][c].y,o->grille_curve.grille[l][c].z);
-  		            }
-         }
+      printf("Test\n");
+        float t1 = (i*1.0) / (o->nb_points-1);
+	       for (int j=0; j<o->nb_points ; j++)
+	        {
+		          float t2 = (j*1.0) / (o->nb_points-1);
+        	     for(int l=0 ; l<o->grille_control_points.nb_lignes; l++)
+        	      {
+              		float basis_l = N(l,o->q,o->nodal_one,t1);
+  		              for(int c=0; c<o->grille_control_points.nb_colonnes; c++)
+  		                {
+                    			float basis_c = N(c,o->q,o->nodal_two,t2);
+  	  		                o->grille_curve.grille[i][j].x += o->grille_control_points.grille[l][c].x*basis_l*basis_c;
+  	  		                o->grille_curve.grille[i][j].y += o->grille_control_points.grille[l][c].y*basis_l*basis_c;
+  	  		                o->grille_curve.grille[i][j].z += o->grille_control_points.grille[l][c].z*basis_l*basis_c;
+                          printf("Point[%d][%d]: (%f,%f,%f) \n",i,j,o->grille_curve.grille[i][j].x,o->grille_curve.grille[i][j].y,o->grille_curve.grille[i][j].z);
+  		                 }
+         	       }
 
-  	}
+	         }
+     }
 
 
 
@@ -122,22 +137,31 @@ static void affiche_nurb(struct nurb *o)
 
   glLineWidth(1);
   glColor3f(1,0,0); // draw lines connecting controll points
-  glBegin(GL_LINE_STRIP) ;
 
-  for(int i=0  ; i<o->grille_control_points.nb_lignes ; i++)
-    for(int j=0  ; j<o->grille_control_points.nb_colonnes ; j++){
-    glVertex3f(o->grille_control_points.grille[i][j].x,o->grille_control_points.grille[i][j].y,o->grille_control_points.grille[i][j].z);
-  }
-  glEnd();
+  for(int i=0  ; i<o->grille_control_points.nb_lignes ; i++){
+	    glBegin(GL_LINE_STRIP) ;
+    	for(int j=0  ; j<o->grille_control_points.nb_colonnes ; j++){
+    		glVertex3f(o->grille_control_points.grille[i][j].x,o->grille_control_points.grille[i][j].y,o->grille_control_points.grille[i][j].z);
+  	}
+	    glEnd();
+	 }
   glColor3f(1,1,1);
+
+ glBegin(GL_POINTS);
+ for(int i=0; i<o->nb_points; i++)
+ for(int j=0; j<o->nb_points;j++)
+ {
+   glVertex3f(o->grille_curve.grille[i][j].x,o->grille_curve.grille[i][j].y,o->grille_curve.grille[i][j].z);
+ }
+ glEnd();
 }
 
 
 CLASSE(nurb, struct nurb,
 
        //CHAMP(curve, L_table_point P_table_triplet Sauve)
-       CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("100") )
-       CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
+       CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("10") )
+       CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("2") )
        //CHAMP(control_points, LABEL("Control Points") L_table_point P_table_quadruplet Extrait Obligatoire Edite)
 
        CHAMP(grille_control_points, LABEL("Grille controll points") L_grille_point P_grille_quadruplet Extrait Obligatoire Edite)

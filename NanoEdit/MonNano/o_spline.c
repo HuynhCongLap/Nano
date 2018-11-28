@@ -53,8 +53,6 @@ static void changement(struct spline *o)
         o->nodal.table[i] = 1;
     }
 
-    printf("num points: %d\n",o->control_points.nb);
-    printf("num curve: %d\n",o->nb_points);
     //for(float t=o->nodal.table[o->q -1]; t<=o->nodal.table[o->control_points.nb]; t+=0.05)
   for (int i=0; i<o->nb_points ; i++)
   {
@@ -77,7 +75,7 @@ static void changement(struct spline *o)
 			       H += basis*o->control_points.table[j].h;
 		    }
 
-        printf("H:%f\n",H);
+
         o->curve.table[i].x /= H;
 		    o->curve.table[i].y /= H;
 		    o->curve.table[i].z /= H;
@@ -116,7 +114,6 @@ CLASSE(spline, struct spline,
        CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("3") )
        CHAMP(control_points, LABEL("Control Points") L_table_point P_table_quadruplet Extrait Obligatoire Edite)
        CHAMP(nodal, LABEL("Knot vectors") L_table_nombre P_table_flottant Edite Affiche)
-        CHAMP(nodal.nb, LABEL("Knot vectors") L_entier Edite Affiche)
        CHANGEMENT(changement)
        CHAMP_VIRTUEL(L_affiche_gl(affiche_spline))
 

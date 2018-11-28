@@ -98,7 +98,7 @@ static void changement(struct nurb *o)
 
     for (int i=0; i<o->nb_points ; i++)
     {
-      printf("Test\n");
+
         float t1 = (i*1.0) / (o->nb_points-1);
 	       for (int j=0; j<o->nb_points ; j++)
 	        {
@@ -112,7 +112,6 @@ static void changement(struct nurb *o)
   	  		                o->grille_curve.grille[i][j].x += o->grille_control_points.grille[l][c].x*basis_l*basis_c;
   	  		                o->grille_curve.grille[i][j].y += o->grille_control_points.grille[l][c].y*basis_l*basis_c;
   	  		                o->grille_curve.grille[i][j].z += o->grille_control_points.grille[l][c].z*basis_l*basis_c;
-                          printf("Point[%d][%d]: (%f,%f,%f) \n",i,j,o->grille_curve.grille[i][j].x,o->grille_curve.grille[i][j].y,o->grille_curve.grille[i][j].z);
   		                 }
          	       }
 
@@ -121,9 +120,6 @@ static void changement(struct nurb *o)
 
 
 
-  //  printf("num points: %d\n",o->control_points.nb);
-  //  printf("num curve: %d\n",o->nb_points);
-    //for(float t=o->nodal.table[o->q -1]; t<=o->nodal.table[o->control_points.nb]; t+=0.05)
 
     printf("dans changement\n");
   }
@@ -160,7 +156,7 @@ static void affiche_nurb(struct nurb *o)
 CLASSE(nurb, struct nurb,
 
        //CHAMP(curve, L_table_point P_table_triplet Sauve)
-       CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("10") )
+       CHAMP(nb_points, LABEL("Nombre de points") L_entier  Edite Sauve DEFAUT("20") )
        CHAMP(q, LABEL("Order") L_entier  Edite Sauve DEFAUT("2") )
        //CHAMP(control_points, LABEL("Control Points") L_table_point P_table_quadruplet Extrait Obligatoire Edite)
 
@@ -173,5 +169,5 @@ CLASSE(nurb, struct nurb,
        CHAMP_VIRTUEL(L_affiche_gl(affiche_nurb))
 
        MENU("Exemples_MG/nurb")
-       EVENEMENT("Ctrl+BP")
+       EVENEMENT("Ctrl+BN")
        )

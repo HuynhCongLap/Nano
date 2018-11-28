@@ -105,10 +105,14 @@ float N(int i, int q, Table_flottant U, float u)
 
 }
 
-// Basis function for Nurb
+// Basis function for bezier
 
-float R(int i, int j, int n, int m, Grille_flottant U, float u, float v)
+float factorial(int n)
 {
+  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
 
-  return ;
+float  Coff(int n, int i) // Calculate basis function
+{
+	return factorial(n)/ (factorial(n-i)* factorial(i));
 }

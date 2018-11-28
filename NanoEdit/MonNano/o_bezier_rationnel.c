@@ -13,16 +13,6 @@ struct bezier_rationnel
 } ;
 
 
-float factorial(int n)
-{
-  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
-}
-
-float  Coff(int n, int i) // Calculate basis function
-{
-	return factorial(n)/ (factorial(n-i)* factorial(i));
-}
-
 static void changement(struct bezier_rationnel *o)
 {
 
@@ -48,7 +38,7 @@ static void changement(struct bezier_rationnel *o)
 	     o->curve_points.table[i].x = 0; // init value for points of curve
 	     o->curve_points.table[i].y = 0; // for now, they're still having garbage values
 	     o->curve_points.table[i].z = 0;
-	     int n = o->control_points.nb -1;
+	     int n = o->control_points.nb - 1 ;
 	     for(int ii=0; ii<o->control_points.nb; ii++)
 	      {
            float B = Coff(n,ii);
@@ -62,7 +52,7 @@ static void changement(struct bezier_rationnel *o)
        o->curve_points.table[i].x /= Homos;
        o->curve_points.table[i].y /= Homos;
        o->curve_points.table[i].z /= Homos;
-       t+=(1.0/(o->nb_points-1)); // calculate t base on number points of curve
+       t+=(1.0/(o->nb_points)); // calculate t base on number points of curve
         // 100 points = 100 step (0.01, 0.02 , 0.03  )
     }
 

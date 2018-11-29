@@ -207,4 +207,3 @@ PROTOTYPE_TYPE_LOGIQUE(L_vecteur_lie           )
 #define L_vecteur_lie            TL(L_vecteur_lie           )
 
 #endif
-

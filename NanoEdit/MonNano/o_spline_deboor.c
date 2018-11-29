@@ -17,6 +17,16 @@ struct spline_deboor
 } ;
 
 
+float px(int i, int r, Quadruplet* zero)
+{
+  if(r==0)
+  {
+    return 1;
+  }
+  else
+    return px(i-1,r-1,zero);
+}
+
 
 static void changement(struct spline_deboor *o)
 {
@@ -60,26 +70,89 @@ static void changement(struct spline_deboor *o)
       o->curve.table[i].y = 0;
       o->curve.table[i].z = 0;
 
-      //float diff= o->nodal.table[o->control_points.nb] - o->nodal.table[o->q -1];
-      //float t= o->nodal.table[o->q -1] + (i*1.0/(o->nb_points-1))*diff ;
-      float H = 0;
+
       float t = (i*1.0) / (o->nb_points-1);
-      printf("t: %f\n",t);
-		  for(int j=0; j<o->control_points.nb; j++)
-		    {
-             float basis = N(j,o->q,o->nodal,t);
-	  		     o->curve.table[i].x += o->control_points.table[j].x*basis*o->control_points.table[j].h;
-	  		     o->curve.table[i].y += o->control_points.table[j].y*basis*o->control_points.table[j].h;
-	  		     o->curve.table[i].z += o->control_points.table[j].z*basis*o->control_points.table[j].h;
-             printf("Basis[%d]= %f\n",j,basis);
-			       H += basis*o->control_points.table[j].h;
-		    }
+      int h = 0;
+      int p = o->q-1;
+      int s = 0;
+      int k=0;
 
 
-        o->curve.table[i].x /= H;
-		    o->curve.table[i].y /= H;
-		    o->curve.table[i].z /= H;
-	}
+      for(int ii=0; ii< o->nodal.nb-1 ; ii++)
+      {
+        if( o->nodal.table[ii] <= t && t < o->nodal.table[ii+1])
+          {
+              h = p;
+              k = ii;
+              break;
+          }
+      }
+
+      if(t == o->nodal.table[k])
+      {
+        for(int iii=0; iii< o->nodal.nb ; iii++)
+        {
+          if( o->nodal.table[iii] == o->nodal.table[k])
+            {
+               s++;
+            }
+        }
+      }
+
+      Grille_quadruplet* save = malloc(sizeof(Grille_quadruplet));
+      save->nb_lignes = o->control_points.nb;
+      save->nb_colonnes = p-s+1;
+      save->grille = (Quadruplet**)malloc((o->control_points.nb)*sizeof(Quadruplet));
+      for (int i=0; i<save->nb_lignes; i++)
+           save->grille[i] = (Quadruplet *)malloc((p-s+1) * sizeof(Quadruplet));
+
+           for(int i =0; i<save->nb_lignes; i++)
+           for(int j=0; j<save->nb_colonnes; j++)
+           {
+             save->grille[i][j].x = 0;
+             save->grille[i][j].y = 0;
+             save->grille[i][j].z = 0;
+             save->grille[i][j].h = 1;
+           }
+      int index = 0;
+      for(int ks= k-p; ks<= k-s; ks++)
+      {
+        save->grille[index][0] = o->control_points.table[ks];
+        index++;
+      }
+
+      for(int i =0; i<save->nb_lignes; i++){
+      for(int j=0; j<save->nb_colonnes; j++)
+        {
+        }
+        //printf("save->grille[%d][%d]:x=%f, y=%f, z=%f ",i,j,save->grille[i][j].x,save->grille[i][j].y,save->grille[i][j].z);
+        printf("\n");
+      }
+      printf("t=%f\n",t);
+      printf("\n");printf("\n");printf("\n");
+       for(int r=1 ; r<=h ;r++)
+      {
+         for(int i=k-p+r; i<= k-s; i++)
+         {
+
+               float air = (t - o->nodal.table[i])/(o->nodal.table[i+p-r+1] - o->nodal.table[i]);
+
+               save->grille[i][r].x = (1-air)*save->grille[i-1][r-1].x + air*save->grille[i][r-1].x;//+ save->grille[i][r-1].x;
+               save->grille[i][r].y = (1-air)*save->grille[i-1][r-1].y + air*save->grille[i][r-1].y;
+               save->grille[i][r].z = (1-air)*save->grille[i-1][r-1].z + air*save->grille[i][r-1].z;
+
+               if(i==k-s && r==p-s){
+                 o->curve.table[i].x = save->grille[i][r].x;
+                 o->curve.table[i].y = save->grille[i][r].y;
+                 o->curve.table[i].z = save->grille[i][r].z;
+
+                 printf("final: %f %f %f", o->curve.table[i].x, o->curve.table[i].y, o->curve.table[i].z);
+               }
+         }
+      }
+
+    }
+
 
     printf("dans changement\n");
   }
@@ -99,8 +172,8 @@ static void affiche_spline_deboor(struct spline_deboor *o)
   glEnd();
   glColor3f(1,1,1);
 
-  glLineWidth(3); // draw Bspline_deboor curve
-  glBegin(GL_LINE_STRIP) ;
+//  glPointSize(3); // draw Bspline_deboor curve
+  glBegin(GL_POINTS) ;
   for(int j=0  ; j<o->nb_points ; j++)
     glVertex3f(o->curve.table[j].x,o->curve.table[j].y,o->curve.table[j].z);
   glEnd();

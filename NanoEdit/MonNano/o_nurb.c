@@ -103,17 +103,23 @@ static void changement(struct nurb *o)
 	       for (int j=0; j<o->nb_points ; j++)
 	        {
 		          float t2 = (j*1.0) / (o->nb_points-1);
+              float Homos = 0;
         	     for(int l=0 ; l<o->grille_control_points.nb_lignes; l++)
         	      {
               		float basis_l = N(l,o->q,o->nodal_one,t1);
   		              for(int c=0; c<o->grille_control_points.nb_colonnes; c++)
   		                {
                     			float basis_c = N(c,o->q,o->nodal_two,t2);
-  	  		                o->grille_curve.grille[i][j].x += o->grille_control_points.grille[l][c].x*basis_l*basis_c;
-  	  		                o->grille_curve.grille[i][j].y += o->grille_control_points.grille[l][c].y*basis_l*basis_c;
-  	  		                o->grille_curve.grille[i][j].z += o->grille_control_points.grille[l][c].z*basis_l*basis_c;
-  		                 }
+  	  		                o->grille_curve.grille[i][j].x += o->grille_control_points.grille[l][c].x*basis_l*basis_c*o->grille_control_points.grille[l][c].h;
+  	  		                o->grille_curve.grille[i][j].y += o->grille_control_points.grille[l][c].y*basis_l*basis_c*o->grille_control_points.grille[l][c].h;
+  	  		                o->grille_curve.grille[i][j].z += o->grille_control_points.grille[l][c].z*basis_l*basis_c*o->grille_control_points.grille[l][c].h;
+
+                          Homos += basis_c*basis_l*o->grille_control_points.grille[l][c].h;
+                       }
          	       }
+                 o->grille_curve.grille[i][j].x /= Homos;
+                 o->grille_curve.grille[i][j].y /= Homos;
+                 o->grille_curve.grille[i][j].z /= Homos;
 
 	         }
      }

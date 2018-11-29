@@ -169,8 +169,6 @@ CLASSE(nurb, struct nurb,
        CHAMP(grille_control_points, LABEL("Grille controll points") L_grille_point P_grille_quadruplet Extrait Obligatoire Edite)
        CHAMP(grille_curve, L_grille_point P_grille_triplet Sauve)
 
-       CHAMP(nodal_one, LABEL("Knot vectors 1") L_table_nombre P_table_flottant Edite Affiche)
-       CHAMP(nodal_two, LABEL("Knot vectors 2") L_table_nombre P_table_flottant Edite Affiche)
        CHANGEMENT(changement)
        CHAMP_VIRTUEL(L_affiche_gl(affiche_nurb))
 

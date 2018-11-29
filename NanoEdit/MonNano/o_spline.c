@@ -25,7 +25,7 @@ static void changement(struct spline *o)
   if ( ! (UN_CHAMP_CHANGE(o)||CREATION(o)) )
     return ;
 
-  if (CHAMP_CHANGE(o,nb_points) || CHAMP_CHANGE(o, control_points)  || CHAMP_CHANGE(o, q))
+  if (CHAMP_CHANGE(o,nb_points) || CHAMP_CHANGE(o, control_points)  || CHAMP_CHANGE(o, q) )
   {
     if (o->curve.nb > 0 )
       free(o->curve.table);
@@ -82,6 +82,49 @@ static void changement(struct spline *o)
 	}
 
     printf("dans changement\n");
+  }
+
+  if( CHAMP_CHANGE(o, nodal))
+  {
+    float l= 1;
+    for(int i=o->q; i<= o->control_points.nb; i++ ){
+
+        int n = o->control_points.nb - o->q ;
+        o->nodal.table[i] = l/(n+1);
+        l++;
+    }
+    for(int i=o->control_points.nb+1; i<= o->control_points.nb - 1 + o->q ; i++ ){
+        o->nodal.table[i] = 1;
+    }
+
+    //for(float t=o->nodal.table[o->q -1]; t<=o->nodal.table[o->control_points.nb]; t+=0.05)
+  for (int i=0; i<o->nb_points ; i++)
+    {
+      o->curve.table[i].x = 0;
+      o->curve.table[i].y = 0;
+      o->curve.table[i].z = 0;
+
+      //float diff= o->nodal.table[o->control_points.nb] - o->nodal.table[o->q -1];
+      //float t= o->nodal.table[o->q -1] + (i*1.0/(o->nb_points-1))*diff ;
+      float H = 0;
+      float t = (i*1.0) / (o->nb_points-1);
+      printf("t: %f\n",t);
+      for(int j=0; j<o->control_points.nb; j++)
+        {
+             float basis = N(j,o->q,o->nodal,t);
+             o->curve.table[i].x += o->control_points.table[j].x*basis*o->control_points.table[j].h;
+             o->curve.table[i].y += o->control_points.table[j].y*basis*o->control_points.table[j].h;
+             o->curve.table[i].z += o->control_points.table[j].z*basis*o->control_points.table[j].h;
+             printf("Basis[%d]= %f\n",j,basis);
+             H += basis*o->control_points.table[j].h;
+        }
+
+
+        o->curve.table[i].x /= H;
+        o->curve.table[i].y /= H;
+        o->curve.table[i].z /= H;
+        printf("dans changemen Nodal\n");
+      }
   }
   else
     printf(" sans changement\n");
